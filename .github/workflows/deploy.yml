@@ -86,7 +86,7 @@ jobs:
 
       - name: Setup Terramaid
         run: |
-            curl -L -o /tmp/terramaid.tar.gz "https://github.com/RoseSecurity/Terramaid/releases/download/v1.0.0/Terramaid_Linux_x86_64.tar.gz"
+            curl -L -o /tmp/terramaid.tar.gz "https://github.com/RoseSecurity/Terramaid/releases/download/${{ steps.vars.outputs.terramaid_version }}/Terramaid_Linux_${{ steps.vars.outputs.arch }}.tar.gz"
             tar -xzvf /tmp/terramaid.tar.gz -C /tmp
             mv -v /tmp/Terramaid /usr/local/bin/terramaid
             chmod +x /usr/local/bin/terramaid
