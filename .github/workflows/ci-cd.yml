@@ -1,9 +1,9 @@
 name: Construcción y despliegue de una aplicación ASP.NET MVC a Azure
 
 env:
-  AZURE_WEBAPP_NAME: upt-awa-148          # Aquí va el nombre de su aplicación
+  AZURE_WEBAPP_NAME: upt-awa-148          # Aqui va el nombre de su aplicación
   AZURE_WEBAPP_PACKAGE_PATH: '.'          # Es la ruta de destino
-  DOTNET_VERSION: '8'                     # La versión de .NET
+  DOTNET_VERSION: '8'                     # la versión de .NET
 
 on:
   push:
@@ -16,13 +16,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Limpiar caché de NuGet
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-clear-cache
-          restore-keys: |
-            ${{ runner.os }}-nuget-
       - uses: actions/checkout@v4
       - name: Configurando .NET Core
         uses: actions/setup-dotnet@v4
@@ -33,26 +26,22 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Restaurar los paquetes
-        run: dotnet restore src/Shorten.csproj
-      - name: Compilar el proyecto
-        run: dotnet build src/Shorten.csproj -c Debug
-      - name: Ejecutar pruebas con cobertura usando coverlet
-        run: |
-          dotnet tool install -g coverlet.console
-          coverlet ./src/bin/Debug/net8.0/Shorten.dll --target dotnet --targetargs "test src/Shorten.csproj --no-build" --format cobertura --output ./TestResults/coverage.cobertura.xml
+        run: cd src && dotnet restore
+      - name: Ejecutar pruebas
+        run: cd src && dotnet test --collect:"XPlat Code Coverage"
       - name: ReportGenerator
         uses: danielpalme/ReportGenerator-GitHub-Action@5.3.7
         with:
-          reports: ./TestResults/coverage.cobertura.xml
+          reports: ./src/*/*/*/coverage.cobertura.xml
           targetdir: coveragereport
           reporttypes: MarkdownSummary;MarkdownAssembliesSummary;MarkdownSummaryGithub
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CoverageReport
-          path: coveragereport
+          name: CoverageReport 
+          path: coveragereport 
       - name: Publish coverage in build summary
-        run: cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+        run: cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY 
         shell: bash
       - name: Instalar Scanner
         run: dotnet tool install -g dotnet-sonarscanner
@@ -63,7 +52,7 @@ jobs:
           dotnet build
           dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       - name: Publicar la aplicación de manera local
-        run: dotnet publish src/Shorten.csproj -c Release -o ${{env.DOTNET_ROOT}}/publish
+        run: cd src && dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/publish
       - name: Subir el artefacto para el job de despliegue
         uses: actions/upload-artifact@v4
         with:
