@@ -34,11 +34,11 @@ jobs:
           java-version: '17'
       - name: Restaurar los paquetes
         run: cd src && dotnet restore
-      - name: Ejecutar pruebas con cobertura
+      - name: Ejecutar pruebas con cobertura usando coverlet
         run: |
           dotnet tool install -g coverlet.console
           cd src
-          dotnet test --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../TestResults/coverage.cobertura.xml
+          coverlet ./Shorten.Tests/bin/Debug/net8.0 --target dotnet --targetargs "test ./Shorten.Tests/Shorten.Tests.csproj --no-build" --format cobertura --output ../TestResults/coverage.cobertura.xml
       - name: ReportGenerator
         uses: danielpalme/ReportGenerator-GitHub-Action@5.3.7
         with:
