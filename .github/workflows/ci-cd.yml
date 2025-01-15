@@ -16,6 +16,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Limpiar caché de NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-clear-cache
+          restore-keys: |
+            ${{ runner.os }}-nuget-
       - uses: actions/checkout@v4
       - name: Configurando .NET Core
         uses: actions/setup-dotnet@v4
