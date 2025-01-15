@@ -1,11 +1,11 @@
 name: Construcción y despliegue de una aplicación ASP.NET MVC a Azure
 
 env:
-  AZURE_WEBAPP_NAME: upt-awa-148          # Aqui va el nombre de su aplicación
-  AZURE_WEBAPP_PACKAGE_PATH: '.'          # Es la ruta de destino
-  DOTNET_VERSION: '8'                     # la versión de .NET
-  SONAR_PROJECT: "Lab1WebRecTomas"        # Nombre de tu proyecto en SonarCloud
-  SONAR_ORG: "tomasyoel"                  # Tu organización en SonarCloud
+  AZURE_WEBAPP_NAME: upt-awa-148
+  AZURE_WEBAPP_PACKAGE_PATH: '.'
+  DOTNET_VERSION: '8'
+  SONAR_PROJECT: "Lab1WebRecTomas"
+  SONAR_ORG: "tomasyoel"
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  
+          fetch-depth: 0
       
       - name: Configurando .NET Core
         uses: actions/setup-dotnet@v4
@@ -36,13 +36,26 @@ jobs:
       - name: Restaurar los paquetes
         run: cd src && dotnet restore
         
+      - name: Crear directorio para coverage
+        run: mkdir -p coverage
+        
       - name: Ejecutar pruebas
-        run: cd src && dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+        run: |
+          cd src
+          dotnet test --no-restore \
+            --collect:"XPlat Code Coverage" \
+            --results-directory:"../coverage" \
+            --settings coverlet.runsettings
+        
+      - name: Lista archivos de coverage
+        run: |
+          echo "Contenido del directorio coverage:"
+          ls -la coverage/
         
       - name: ReportGenerator
         uses: danielpalme/ReportGenerator-GitHub-Action@5.3.7
         with:
-          reports: 'src/coverage/**/coverage.cobertura.xml'
+          reports: 'coverage/**/coverage.cobertura.xml'
           targetdir: coveragereport
           reporttypes: MarkdownSummary;MarkdownAssembliesSummary;MarkdownSummaryGithub
           
@@ -65,7 +78,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           cd src
-          dotnet-sonarscanner begin /k:"${{ env.SONAR_PROJECT }}" /o:"${{ env.SONAR_ORG }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage/**/coverage.cobertura.xml"
+          dotnet-sonarscanner begin /k:"${{ env.SONAR_PROJECT }}" /o:"${{ env.SONAR_ORG }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="../coverage/**/coverage.cobertura.xml"
           dotnet build --no-restore
           dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
           
