@@ -4,11 +4,14 @@ env:
   AZURE_WEBAPP_NAME: upt-awa-148          # Aqui va el nombre de su aplicación
   AZURE_WEBAPP_PACKAGE_PATH: '.'          # Es la ruta de destino
   DOTNET_VERSION: '8'                     # la versión de .NET
+  SONAR_PROJECT: "Lab1WebRecTomas"        # Nombre de tu proyecto en SonarCloud
+  SONAR_ORG: "tomasyoel"                  # Tu organización en SonarCloud
 
 on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
+
 permissions:
   contents: read
 
@@ -17,42 +20,58 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+      
       - name: Configurando .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+          
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+          
       - name: Restaurar los paquetes
         run: cd src && dotnet restore
+        
       - name: Ejecutar pruebas
-        run: cd src && dotnet test --collect:"XPlat Code Coverage"
+        run: cd src && dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+        
       - name: ReportGenerator
         uses: danielpalme/ReportGenerator-GitHub-Action@5.3.7
         with:
-          reports: ./src/*/*/*/coverage.cobertura.xml
+          reports: 'src/coverage/**/coverage.cobertura.xml'
           targetdir: coveragereport
           reporttypes: MarkdownSummary;MarkdownAssembliesSummary;MarkdownSummaryGithub
+          
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v4
         with:
           name: CoverageReport 
           path: coveragereport 
-      - name: Publish coverage in build summary # 
+          
+      - name: Publish coverage in build summary
         run: cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY 
         shell: bash
+        
       - name: Instalar Scanner
         run: dotnet tool install -g dotnet-sonarscanner
+        
       - name: Ejecutar escaneo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           cd src
-          dotnet-sonarscanner begin /k:"${{ env.SONAR_PROJECT }}" /o:"${{ env.SONAR_ORG }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build
+          dotnet-sonarscanner begin /k:"${{ env.SONAR_PROJECT }}" /o:"${{ env.SONAR_ORG }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage/**/coverage.cobertura.xml"
+          dotnet build --no-restore
           dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          
       - name: Publicar la aplicación de manera local
         run: cd src && dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/publish
+        
       - name: Subir el artefacto para el job de despliegue
         uses: actions/upload-artifact@v4
         with:
@@ -73,6 +92,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+          
       - name: Desplegar a Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
