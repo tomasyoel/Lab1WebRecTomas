@@ -40,7 +40,7 @@ jobs:
         with:
           name: CoverageReport 
           path: coveragereport 
-      - name: Publish coverage in build summary
+      - name: Publish coverage in build summary # 
         run: cat coveragereport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY 
         shell: bash
       - name: Instalar Scanner
