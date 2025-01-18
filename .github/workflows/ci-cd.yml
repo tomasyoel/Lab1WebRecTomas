@@ -73,15 +73,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           cd src
-          dotnet restore
           dotnet sonarscanner begin \
             /k:"${{ env.SONAR_PROJECT }}" \
             /o:"${{ env.SONAR_ORG }}" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.projectBaseDir="src" \
-            /d:sonar.sources="." \
-            /d:sonar.tests="." \
             /d:sonar.cs.opencover.reportsPaths="../TestResults/Coverage/coverage.cobertura.xml" \
             /d:sonar.coverage.exclusions="**/Program.cs,**/*.g.cs"
           dotnet build --no-restore
