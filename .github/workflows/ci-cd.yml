@@ -78,7 +78,11 @@ jobs:
             /o:"${{ env.SONAR_ORG }}" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.cobertura.reportsPaths="../TestResults/Coverage/coverage.cobertura.xml"
+            /d:sonar.cs.cobertura.reportsPaths="../TestResults/Coverage/coverage.cobertura.xml" \
+            /d:sonar.coverage.exclusions="**/Program.cs" \
+            /d:sonar.projectBaseDir="." \
+            /d:sonar.sources="." \
+            /d:sonar.scm.disabled=true
           dotnet build --no-restore
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
           
