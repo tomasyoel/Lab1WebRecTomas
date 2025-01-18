@@ -34,7 +34,7 @@ jobs:
           java-version: '17'
           
       - name: Restaurar los paquetes
-        run: dotnet restore
+        run: cd src && dotnet restore
         
       - name: Instalar coverlet
         run: dotnet tool install --global coverlet.console
@@ -77,11 +77,12 @@ jobs:
             /o:"${{ env.SONAR_ORG }}" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.cobertura.reportsPaths="**/TestResults/Coverage/coverage.cobertura.xml" \
+            /d:sonar.cs.cobertura.reportsPaths="TestResults/Coverage/coverage.cobertura.xml" \
             /d:sonar.coverage.exclusions="**/Program.cs" \
-            /d:sonar.sources="src" \
-            /d:sonar.projectBaseDir="."
+            /d:sonar.sources="src"
+          cd src
           dotnet build --no-restore
+          cd ..
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
           
       - name: Publicar la aplicación
