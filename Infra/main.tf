@@ -50,3 +50,16 @@ resource "azurerm_linux_web_app" "webapp" {
     }
   }
 }
+
+# Enable automated deployment from GitHub
+resource "azurerm_app_service_source_control" "sourcecontrol" {
+  app_id            = azurerm_linux_web_app.webapp.id
+  repo_url          = "https://github.com/tomasyoel/Lab1WebRecTomas"
+  branch            = "main"
+  use_manual_integration = false
+
+  github_action_configuration {
+
+    secret_name = "AZURE_WEBAPP_PUBLISH_PROFILE"
+  }
+}
