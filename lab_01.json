@@ -1,0 +1,237 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "serverfarms_upt_asp_148_name": {
+      "type": "String"
+    },
+    "sites_upt_awa_148_name": {
+      "type": "String"
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2023-12-01",
+      "kind": "linux",
+      "location": "East US",
+      "name": "[parameters('serverfarms_upt_asp_148_name')]",
+      "properties": {
+        "elasticScaleEnabled": false,
+        "hyperV": false,
+        "isSpot": false,
+        "isXenon": false,
+        "maximumElasticWorkerCount": 1,
+        "perSiteScaling": false,
+        "reserved": true,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0,
+        "zoneRedundant": false
+      },
+      "sku": {
+        "capacity": 1,
+        "family": "F",
+        "name": "F1",
+        "size": "F1",
+        "tier": "Free"
+      },
+      "type": "Microsoft.Web/serverfarms"
+    },
+    {
+      "apiVersion": "2023-12-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_upt_asp_148_name'))]"
+      ],
+      "kind": "app,linux",
+      "location": "East US",
+      "name": "[parameters('sites_upt_awa_148_name')]",
+      "properties": {
+        "clientAffinityEnabled": false,
+        "clientCertEnabled": false,
+        "clientCertMode": "Required",
+        "containerSize": 0,
+        "customDomainVerificationId": "772833AFF5A7FE6C7C73E75C11DE18D4E044F0B282248597E39B2284A0B05F34",
+        "dailyMemoryTimeQuota": 0,
+        "dnsConfiguration": {},
+        "enabled": true,
+        "hostNameSslStates": [
+          {
+            "hostType": "Standard",
+            "name": "[concat(parameters('sites_upt_awa_148_name'), '.azurewebsites.net')]",
+            "sslState": "Disabled"
+          },
+          {
+            "hostType": "Repository",
+            "name": "[concat(parameters('sites_upt_awa_148_name'), '.scm.azurewebsites.net')]",
+            "sslState": "Disabled"
+          }
+        ],
+        "hostNamesDisabled": false,
+        "httpsOnly": false,
+        "hyperV": false,
+        "isXenon": false,
+        "keyVaultReferenceIdentity": "SystemAssigned",
+        "publicNetworkAccess": "Enabled",
+        "redundancyMode": "None",
+        "reserved": true,
+        "scmSiteAlsoStopped": false,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_upt_asp_148_name'))]",
+        "siteConfig": {
+          "acrUseManagedIdentityCreds": false,
+          "alwaysOn": false,
+          "functionAppScaleLimit": 0,
+          "http20Enabled": false,
+          "linuxFxVersion": "DOTNETCORE|8.0",
+          "minimumElasticInstanceCount": 0,
+          "numberOfWorkers": 1
+        },
+        "storageAccountRequired": false,
+        "vnetBackupRestoreEnabled": false,
+        "vnetContentShareEnabled": false,
+        "vnetImagePullEnabled": false,
+        "vnetRouteAllEnabled": false
+      },
+      "type": "Microsoft.Web/sites"
+    },
+    {
+      "apiVersion": "2023-12-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_upt_awa_148_name'))]"
+      ],
+      "location": "East US",
+      "name": "[concat(parameters('sites_upt_awa_148_name'), '/ftp')]",
+      "properties": {
+        "allow": true
+      },
+      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies"
+    },
+    {
+      "apiVersion": "2023-12-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_upt_awa_148_name'))]"
+      ],
+      "location": "East US",
+      "name": "[concat(parameters('sites_upt_awa_148_name'), '/scm')]",
+      "properties": {
+        "allow": true
+      },
+      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies"
+    },
+    {
+      "apiVersion": "2023-12-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_upt_awa_148_name'))]"
+      ],
+      "location": "East US",
+      "name": "[concat(parameters('sites_upt_awa_148_name'), '/web')]",
+      "properties": {
+        "acrUseManagedIdentityCreds": false,
+        "alwaysOn": false,
+        "autoHealEnabled": false,
+        "azureStorageAccounts": {},
+        "defaultDocuments": [
+          "Default.htm",
+          "Default.html",
+          "Default.asp",
+          "index.htm",
+          "index.html",
+          "iisstart.htm",
+          "default.aspx",
+          "index.php",
+          "hostingstart.html"
+        ],
+        "detailedErrorLoggingEnabled": false,
+        "elasticWebAppScaleLimit": 0,
+        "experiments": {
+          "rampUpRules": []
+        },
+        "ftpsState": "Disabled",
+        "functionsRuntimeScaleMonitoringEnabled": false,
+        "http20Enabled": false,
+        "httpLoggingEnabled": false,
+        "ipSecurityRestrictions": [
+          {
+            "action": "Allow",
+            "description": "Allow all access",
+            "ipAddress": "Any",
+            "name": "Allow all",
+            "priority": 2147483647
+          }
+        ],
+        "ipSecurityRestrictionsDefaultAction": "Allow",
+        "linuxFxVersion": "DOTNETCORE|8.0",
+        "loadBalancing": "LeastRequests",
+        "localMySqlEnabled": false,
+        "logsDirectorySizeLimit": 35,
+        "managedPipelineMode": "Integrated",
+        "minTlsVersion": "1.2",
+        "minimumElasticInstanceCount": 0,
+        "netFrameworkVersion": "v4.0",
+        "numberOfWorkers": 1,
+        "preWarmedInstanceCount": 0,
+        "publicNetworkAccess": "Enabled",
+        "publishingUsername": "$upt-awa-148",
+        "remoteDebuggingEnabled": false,
+        "remoteDebuggingVersion": "VS2022",
+        "requestTracingEnabled": false,
+        "scmIpSecurityRestrictions": [
+          {
+            "action": "Allow",
+            "description": "Allow all access",
+            "ipAddress": "Any",
+            "name": "Allow all",
+            "priority": 2147483647
+          }
+        ],
+        "scmIpSecurityRestrictionsDefaultAction": "Allow",
+        "scmIpSecurityRestrictionsUseMain": false,
+        "scmMinTlsVersion": "1.2",
+        "scmType": "None",
+        "use32BitWorkerProcess": true,
+        "virtualApplications": [
+          {
+            "physicalPath": "site\\wwwroot",
+            "preloadEnabled": false,
+            "virtualPath": "/"
+          }
+        ],
+        "vnetPrivatePortsCount": 0,
+        "vnetRouteAllEnabled": false,
+        "webSocketsEnabled": false
+      },
+      "type": "Microsoft.Web/sites/config"
+    },
+    {
+      "apiVersion": "2023-12-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_upt_awa_148_name'))]"
+      ],
+      "location": "East US",
+      "name": "[concat(parameters('sites_upt_awa_148_name'), '/3b391efe-0e19-4611-98b2-b53a110c2a45')]",
+      "properties": {
+        "active": true,
+        "author": "N/A",
+        "author_email": "N/A",
+        "deployer": "GITHUB_ZIP_DEPLOY",
+        "end_time": "2025-01-18T20:17:55.9458485Z",
+        "message": "{\"type\":\"deployment\",\"sha\":\"31ed8212e1b5e029c554ae7cfe6c5243d3d638f0\",\"repoName\":\"tomasyoel/Lab1WebRecTomas\",\"actor\":\"tomasyoel\",\"slotName\":\"production\",\"commitMessage\":\"Update ci-cd.yml\"}",
+        "start_time": "2025-01-18T20:17:38.8379617Z",
+        "status": 4
+      },
+      "type": "Microsoft.Web/sites/deployments"
+    },
+    {
+      "apiVersion": "2023-12-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_upt_awa_148_name'))]"
+      ],
+      "location": "East US",
+      "name": "[concat(parameters('sites_upt_awa_148_name'), '/', parameters('sites_upt_awa_148_name'), '.azurewebsites.net')]",
+      "properties": {
+        "hostNameType": "Verified",
+        "siteName": "upt-awa-148"
+      },
+      "type": "Microsoft.Web/sites/hostNameBindings"
+    }
+  ],
+  "variables": {}
+}
