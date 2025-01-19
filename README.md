@@ -36,6 +36,9 @@
 ```Powershell
 md Infra
 ```
+
+![Captura de la configuración inicial](img/1.png)
+
 2. Abrir Visual Studio Code, seguidamente abrir la carpeta del repositorio clonado del laboratorio, en el folder Infra, crear el archivo main.tf con el siguiente contenido
 ```Terraform
 # Configure the Azure provider
@@ -91,12 +94,20 @@ resource "azurerm_linux_web_app" "webapp" {
   }
 }
 ```
+
+![](img/2.png)
+
 3. Abrir un navegador de internet y dirigirse a su repositorio en Github, en la sección *Settings*, buscar la opción *Secrets and Variables* y seleccionar la opción *Actions*. Dentro de esta hacer click en el botón *New Repository Secret*.
    ![image](https://github.com/UPT-FAING-EPIS/lab_cloud_01/assets/10199939/cb5a0c40-64ef-430a-b0bb-310a94d83364)
 
-4. En el navegador, dentro de la ventana *New Secret*, colocar como nombre AZURE_USERNAME y como valor su cuenta de correo azure. Repetir el mismo proceso para crear otro secreto de nombre AZURE_USERPASS y como valor la contraseña de su cuenta de azure.
 
-5. En el Visual Studio Code, crear la carpeta .github/workflows en la raiz del proyecto, seguidamente crear el archivo deploy.yml con el siguiente contenido
+   ![](img/3.png)
+
+5. En el navegador, dentro de la ventana *New Secret*, colocar como nombre AZURE_USERNAME y como valor su cuenta de correo azure. Repetir el mismo proceso para crear otro secreto de nombre AZURE_USERPASS y como valor la contraseña de su cuenta de azure.
+
+![](img/4.png)
+
+6. En el Visual Studio Code, crear la carpeta .github/workflows en la raiz del proyecto, seguidamente crear el archivo deploy.yml con el siguiente contenido
 <details><summary>Click to expand: deploy.yml</summary>
 
 ```Yaml
@@ -255,10 +266,15 @@ jobs:
 ```
 </details>
 
+
+![](img/5.png)
+
 6. En el Visual Studio Code, guardar los cambios y subir los cambios al repositorio. Revisar los logs de la ejeuciòn de automatizaciòn y anotar el numero de identificaciòn de Grupo de Recursos y Aplicación Web creados
 ```Bash
 azurerm_linux_web_app.webapp: Creation complete after 53s [id=/subscriptions/1f57de72-50fd-4271-8ab9-3fc129f02bc0/resourceGroups/upt-arg-XXX/providers/Microsoft.Web/sites/upt-awa-XXX]
 ```
+
+![](img/6.png)
 
 ### CONSTRUCCION DE LA APLICACION
 
@@ -274,6 +290,13 @@ dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version=8.
 dotnet add package Microsoft.AspNetCore.Components.QuickGrid --version=8.0.0
 dotnet add package Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter --version=8.0.0
 ```
+
+![](img/7.png)
+
+![](img/8.png)
+
+![](img/9.png)
+
 2. En el Visual Studio Code, en la carpeta src/Models, crear el archivo UrlMapping.cs con el siguiente contenido:
 ```CSharp
 namespace Shorten.Models;
@@ -299,6 +322,8 @@ public class UrlMapping
     public string ShortenedUrl { get; set; } = string.Empty;
 }
 ```
+
+![](img/10.png)
   
 3. En el Visual Studio Code, en la carpeta src/Models, crear el archivo ShortContext.cs con el siguiente contenido:
 ```CSharp
@@ -324,6 +349,8 @@ public class ShortContext : DbContext
 }
 ```
 
+![](img/11.png)
+
 4. En el Visual Studio Code, en la carpeta src, modificar el archivo Program.cs con el siguiente contenido al inicio:
 ```CSharp
 using Shorten.Models;
@@ -340,6 +367,8 @@ var app = builder.Build();
 ...
 ```
 
+![](img/12.png)
+
 5. En el terminal, ejecutar el siguiente comando para crear nu nuevo controlador y sus vistas asociadas.
 ```Powershell
 dotnet aspnet-codegenerator Controller -name UrlMappingController -m UrlMapping -dc ShortContext -outDir Controllers -udl
@@ -354,21 +383,28 @@ dotnet aspnet-codegenerator Controller -name UrlMappingController -m UrlMapping 
 ...
 ```
 
+![](img/13.png)
+
 ### DESPLIEGUE DE LA APLICACION 
 
 1. En el terminal, ejecutar el siguiente comando para obtener el perfil publico (Publish Profile) de la aplicación. Anotarlo porque se utilizara posteriormente.
 ```Powershell
 az webapp deployment list-publishing-profiles --name upt-awa-XXX --resource-group upt-arg-XXX --xml
 ```
+
+![](img/14.png)
+
 > Donde XXX; es el numero de identicación de la Aplicación Web creada en la primera sección
 
 2. Abrir un navegador de internet y dirigirse a su repositorio en Github, en la sección *Settings*, buscar la opción *Secrets and Variables* y seleccionar la opción *Actions*. Dentro de esta hacer click en el botón *New Repository Secret*.
    ![image](https://github.com/UPT-FAING-EPIS/lab_cloud_01/assets/10199939/cb5a0c40-64ef-430a-b0bb-310a94d83364)
 
-3. En el navegador, dentro de la ventana *New Secret*, colocar como nombre AZURE_WEBAPP_PUBLISH_PROFILE y como valor el obtenido en el paso 5.
+ ![](img/15.png)
+
+4. En el navegador, dentro de la ventana *New Secret*, colocar como nombre AZURE_WEBAPP_PUBLISH_PROFILE y como valor el obtenido en el paso 5.
    ![image](https://github.com/UPT-FAING-EPIS/lab_cloud_01/assets/10199939/c368f3fd-d9e4-4f21-bec4-727f267bcf74)
  
-4. En el Visual Studio Code, dentro de la carpeta `.github/workflows`, crear el archivo ci-cd.yml con el siguiente contenido
+5. En el Visual Studio Code, dentro de la carpeta `.github/workflows`, crear el archivo ci-cd.yml con el siguiente contenido
 ```Yaml
 name: Construcción y despliegue de una aplicación ASP.NET MVC a Azure
 
@@ -460,25 +496,43 @@ jobs:
 6. En el Navegador de internet, dirigirse al repositorio de Github y revisar la seccion Actions, verificar que se esta ejecutando correctamente el Workflow
 ![image](https://github.com/UPT-FAING-EPIS/lab_cloud_01/assets/10199939/82e38848-2893-4bb0-913a-0d5b99e95ca5)
 
-7. En el Navegador de internet, una vez finalizada la automatización, ingresar al sitio creado y navegar por el (https://upt-awa-XXX.azurewebsites.net).
+ ![](img/16.png)
 
-8. En el Terminal, revisar las metricas de navegacion con el siguiente comando.
+ ![](img/17.png)
+
+
+8. En el Navegador de internet, una vez finalizada la automatización, ingresar al sitio creado y navegar por el (https://upt-awa-XXX.azurewebsites.net).
+
+9. En el Terminal, revisar las metricas de navegacion con el siguiente comando.
 ```Powershell
 az monitor metrics list --resource "/subscriptions/XXXXXXXXXXXXXXX/resourceGroups/upt-arg-XXX/providers/Microsoft.Web/sites/upt-awa-XXXX" --metric "Requests" --start-time 2025-01-07T18:00:00Z --end-time 2025-01-07T23:00:00Z --output table
 ```
 > Reemplazar los valores: 1. ID de suscripcion de Azure, 2. ID de creaciòn de infra y 3. El rango de fechas de uso de la aplicación.
+
+ ![](img/18.png)
 
 7. En el Terminal, ejecutar el siguiente comando para obtener la plantilla de los recursos creados de azure en el grupo de recursos UPT.
 ```Powershell
 az group export -n upt-arg-XXX > lab_01.json
 ```
 
+ ![](img/19.png)
+
+  ![](img/20.png)
+
 8. En el Visual Studio Code, instalar la extensión *ARM Template Viewer*, abrir el archivo lab_01.json y hacer click en el icono de previsualizar ARM.
 ![image](https://github.com/UPT-FAING-EPIS/lab_cloud_01/assets/10199939/39ea1bdd-a0c7-482b-9417-5c7328e55198)
+
+ ![](img/21.png)
 
 
 ## ACTIVIDADES ENCARGADAS
 
 1. Subir el diagrama al repositorio como lab_01.png y el reporte de metricas.
-2. En el archivo main.tf, implementar el recurso azurerm_app_service_source_control, para el despliegue automatizado de la aplicación
-3. Construir pruebas de interfaz para completar el 100% de cobertura de aplicación.
+
+ ![](img/21.png)
+
+  ![](img/22.png)
+  
+3. En el archivo main.tf, implementar el recurso azurerm_app_service_source_control, para el despliegue automatizado de la aplicación
+4. Construir pruebas de interfaz para completar el 100% de cobertura de aplicación.
