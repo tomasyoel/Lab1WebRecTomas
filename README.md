@@ -535,4 +535,9 @@ az group export -n upt-arg-XXX > lab_01.json
   ![](img/22.png)
   
 3. En el archivo main.tf, implementar el recurso azurerm_app_service_source_control, para el despliegue automatizado de la aplicación
+   
+![](img/2.png)
+
 4. Construir pruebas de interfaz para completar el 100% de cobertura de aplicación.
+
+![](img/19.png)
